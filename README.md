@@ -21,6 +21,25 @@ place orders, set manual prices, and reset the account.
 > GitHub Pages can't run Python, so the app runs locally (or on any small VPS).
 > This repo is just the code host.
 
+## my_bot integration (trading_utils.py)
+
+When a [my_bot](https://github.com/elkarouh/my_bot) checkout is reachable, the
+simulator sources market data through its `LIBS/trading_utils.py` instead of
+raw yfinance — same fetcher, same `CACHE/<TICKER>_cache.*` files the backtests
+use, so the bot and the simulator always see identical data:
+
+- **Quotes**: stale prices refresh via `get_real_time_price` (price row
+  `source` becomes `my_bot`).
+- **Daily history**: `GET /v1/api/iserver/marketdata/history?conid=&bar=1d&period=1y`
+  returns real daily OHLCV from `get_stock_prices` (cache-merged, market-open
+  guard included) instead of bars rebuilt from the simulator's tick tape.
+  Intraday bars (`1min` … `1h`) still come from the tick tape.
+
+Discovery: `PAPER_MYBOT_PATH` if set, otherwise a sibling `../my_bot` checkout.
+Disable with `PAPER_USE_MYBOT=0`. Requires my_bot's data deps (`pandas`,
+`pytz`, `requests`) on the same Python; without them the simulator silently
+falls back to yfinance / manual prices.
+
 ## Hooking up your bot
 
 Use `client/paper_ibkr.py` (stdlib-only) from your bot, or call the REST API
@@ -66,8 +85,9 @@ Simulator-only helpers (no IBKR equivalent):
 ## How fills work
 
 - Prices come from manual overrides first; when a price is stale (default 15 s)
-  and `yfinance` is installed, a delayed real quote is fetched. Bid/ask are
-  synthesized around last with a configurable spread.
+  a delayed real quote is fetched — via my_bot's `trading_utils` when wired,
+  otherwise via `yfinance` if installed. Bid/ask are synthesized around last
+  with a configurable spread.
 - `MKT` orders fill immediately at ask (buy) / bid (sell).
 - `LMT` / `STP` orders rest and are matched on every price update.
 - Buys are rejected on insufficient cash; sells beyond your position are
@@ -85,6 +105,9 @@ Simulator-only helpers (no IBKR equivalent):
 | `PAPER_SPREAD` | `0.0005` | synthetic half-spread around last |
 | `PAPER_PRICE_TTL` | `15` | seconds before a cached price is refreshed |
 | `PAPER_ALLOW_SHORT` | `0` | set `1` to allow short selling |
+| `PAPER_USE_MYBOT` | `1` | set `0` to disable the my_bot trading_utils bridge |
+| `PAPER_MYBOT_PATH` | *(auto)* | my_bot checkout; defaults to sibling `../my_bot` |
+| `PAPER_MYBOT_CACHE` | `<my_bot>/CACHE` | override the shared price-cache directory |
 
 ## Tests
 

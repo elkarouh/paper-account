@@ -1,3 +1,8 @@
 flask>=3.0
 # Optional: real delayed quotes. The app works without it (manual prices).
 yfinance>=0.2.40
+# Optional: my_bot integration (LIBS/trading_utils.py as quote/history source).
+# Needed only when a my_bot checkout is wired up — see README "my_bot integration".
+# pandas
+# pytz
+# requests

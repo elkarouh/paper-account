@@ -1,8 +1,9 @@
-"""Price source: manual overrides first, then yfinance (delayed quotes) if available."""
+"""Price source: manual overrides first, then my_bot's trading_utils, then yfinance."""
 import time
 
 from flask import current_app
 
+from . import mybot_data
 from .db import get_db, now
 
 try:
@@ -67,8 +68,16 @@ def _fetch_yfinance(symbol):
         return None
 
 
+def _fetch_live(symbol):
+    """(last, source) from my_bot's trading_utils when wired, else yfinance."""
+    last = mybot_data.last_price(symbol)
+    if last is not None:
+        return last, "my_bot"
+    return _fetch_yfinance(symbol), "yfinance"
+
+
 def get_quote(conid, refresh=True):
-    """Return the prices row for conid, refreshing from yfinance when stale.
+    """Return the prices row for conid, refreshing from a live source when stale.
 
     A manual price is treated as authoritative until it goes stale (TTL),
     so a bot can drive the tape deterministically in tests.
@@ -81,8 +90,8 @@ def get_quote(conid, refresh=True):
         return row
     contract = get_contract(conid)
     if contract is not None:
-        last = _fetch_yfinance(contract["symbol"])
+        last, source = _fetch_live(contract["symbol"])
         if last is not None:
-            set_price(conid, last, source="yfinance")
+            set_price(conid, last, source=source)
             row = db.execute("SELECT * FROM prices WHERE conid = ?", (conid,)).fetchone()
     return row

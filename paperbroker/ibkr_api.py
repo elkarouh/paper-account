@@ -4,11 +4,13 @@ Only the subset a trading bot typically needs is implemented, but request and
 response shapes follow the real gateway so client code can later be pointed at
 https://localhost:5001/v1/api unchanged.
 """
+import re
 import time
+from datetime import datetime, timedelta
 
 from flask import Blueprint, current_app, jsonify, request
 
-from . import engine, marketdata
+from . import engine, marketdata, mybot_data
 from .db import get_db
 
 bp = Blueprint("ibkr", __name__, url_prefix="/v1/api")
@@ -222,11 +224,33 @@ def snapshot():
     return jsonify(out)
 
 
+def _period_days(period):
+    """IBKR period string ("5d", "2w", "6m", "1y") → days, default 1y."""
+    m = re.fullmatch(r"(\d+)([dwmy])", (period or "").strip().lower())
+    if not m:
+        return 365
+    return int(m.group(1)) * {"d": 1, "w": 7, "m": 31, "y": 366}[m.group(2)]
+
+
 @bp.get("/iserver/marketdata/history")
 def history():
     conid = int(request.args.get("conid", 0))
     bar = request.args.get("bar", "1min")
     bar_secs = {"1min": 60, "5min": 300, "15min": 900, "1h": 3600, "1d": 86400}.get(bar, 60)
+    if bar == "1d":
+        # Real daily OHLCV via my_bot's cached Yahoo fetcher, when wired.
+        contract = get_db().execute(
+            "SELECT symbol FROM contracts WHERE conid=?", (conid,)
+        ).fetchone()
+        if contract is not None:
+            start = (datetime.now() - timedelta(days=_period_days(request.args.get("period")))
+                     ).strftime("%Y-%m-%d")
+            data = mybot_data.daily_bars(contract["symbol"], start_date=start,
+                                         end_date=datetime.now().strftime("%Y-%m-%d"))
+            if data:
+                return jsonify({"serverId": "paper", "symbol": contract["symbol"],
+                                "data": data, "points": len(data),
+                                "barLength": bar_secs, "mdAvailability": "D"})
     rows = get_db().execute(
         "SELECT price, ts FROM price_history WHERE conid=? ORDER BY ts", (conid,)
     ).fetchall()

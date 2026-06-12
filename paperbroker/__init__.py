@@ -16,6 +16,10 @@ def create_app(test_config=None):
         SYNTHETIC_SPREAD=float(os.environ.get("PAPER_SPREAD", "0.0005")),
         PRICE_TTL=float(os.environ.get("PAPER_PRICE_TTL", "15")),
         ALLOW_SHORT=os.environ.get("PAPER_ALLOW_SHORT", "0") == "1",
+        # my_bot integration (LIBS/trading_utils.py as quote/history source)
+        USE_MYBOT=os.environ.get("PAPER_USE_MYBOT", "1") == "1",
+        MYBOT_PATH=os.environ.get("PAPER_MYBOT_PATH", ""),
+        MYBOT_CACHE=os.environ.get("PAPER_MYBOT_CACHE", ""),
     )
     if test_config:
         app.config.update(test_config)
