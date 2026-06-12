@@ -1,0 +1,32 @@
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: #11161d; color: #dde3ea;
+}
+header {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 1.5rem;
+  padding: 1rem 1.5rem; background: #182028; border-bottom: 1px solid #2a3543;
+}
+h1 { font-size: 1.2rem; margin: 0; }
+.acct { color: #7fb4e8; font-weight: normal; }
+.summary { display: flex; gap: 1.5rem; flex-wrap: wrap; font-size: .9rem; }
+.summary div span { display: block; color: #8b97a5; font-size: .75rem; }
+main { padding: 1rem 1.5rem; display: grid; gap: 1rem; }
+.card { background: #182028; border: 1px solid #2a3543; border-radius: 8px; padding: 1rem; }
+h2 { font-size: .95rem; margin: 0 0 .75rem; color: #9fb2c5; }
+form { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: .5rem; }
+input, select, button {
+  background: #11161d; color: #dde3ea; border: 1px solid #2a3543;
+  border-radius: 5px; padding: .45rem .6rem; font-size: .85rem;
+}
+input { width: 9.5rem; }
+button { cursor: pointer; background: #1e4976; border-color: #1e4976; }
+button:hover { background: #265d96; }
+button.danger { background: #6b2222; border-color: #6b2222; }
+button.cancel { padding: .15rem .5rem; font-size: .75rem; background: #44292c; border-color: #5a3338; }
+table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+th, td { text-align: right; padding: .4rem .6rem; border-bottom: 1px solid #222c38; }
+th:first-child, td:first-child { text-align: left; }
+th { color: #8b97a5; font-weight: 500; }
+.pos { color: #5ecc7b; } .neg { color: #e06c75; }
+.msg { font-size: .85rem; min-height: 1.2em; margin: .25rem 0 0; color: #e0b36c; }

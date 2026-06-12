@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paper Account — {{ account_id }}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body data-account="{{ account_id }}">
+<header>
+  <h1>Paper Trading <span class="acct">{{ account_id }}</span></h1>
+  <div id="summary" class="summary"></div>
+</header>
+
+<main>
+  <section class="card">
+    <h2>Place Order</h2>
+    <form id="order-form">
+      <input name="ticker" placeholder="Symbol (e.g. AAPL)" required>
+      <select name="side"><option>BUY</option><option>SELL</option></select>
+      <select name="orderType"><option>MKT</option><option>LMT</option><option>STP</option></select>
+      <input name="quantity" type="number" step="any" min="0" placeholder="Qty" required>
+      <input name="price" type="number" step="any" min="0" placeholder="Limit price">
+      <input name="auxPrice" type="number" step="any" min="0" placeholder="Stop price">
+      <button type="submit">Submit</button>
+    </form>
+    <form id="price-form">
+      <input name="symbol" placeholder="Symbol" required>
+      <input name="last" type="number" step="any" min="0" placeholder="Set manual price" required>
+      <button type="submit">Set price</button>
+      <button type="button" id="reset-btn" class="danger">Reset account</button>
+    </form>
+    <p id="msg" class="msg"></p>
+  </section>
+
+  <section class="card">
+    <h2>Positions</h2>
+    <table id="positions">
+      <thead><tr><th>Symbol</th><th>Qty</th><th>Avg Cost</th><th>Last</th>
+        <th>Mkt Value</th><th>Unrlzd P&amp;L</th><th>Rlzd P&amp;L</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <h2>Orders</h2>
+    <table id="orders">
+      <thead><tr><th>ID</th><th>Symbol</th><th>Side</th><th>Type</th><th>Qty</th>
+        <th>Price</th><th>Status</th><th>Avg Fill</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <h2>Trades</h2>
+    <table id="trades">
+      <thead><tr><th>Time</th><th>Symbol</th><th>Side</th><th>Qty</th>
+        <th>Price</th><th>Commission</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+</main>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
