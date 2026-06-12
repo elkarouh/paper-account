@@ -14,7 +14,7 @@ class ApiTest(unittest.TestCase):
         os.close(fd)
         app = create_app({"DATABASE": self.db_path, "TESTING": True,
                           "STARTING_CASH": 100000.0, "COMMISSION_PER_ORDER": 1.0,
-                          "SYNTHETIC_SPREAD": 0.0})
+                          "SYNTHETIC_SPREAD": 0.0, "USE_MYBOT": False})
         self.client = app.test_client()
         self.acct = app.config["ACCOUNT_ID"]
 
